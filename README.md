@@ -1,7 +1,7 @@
 > This is not an official Tilt Five product. Read [the disclaimer](#Disclaimer) for details.
 # Jigsaw For Tilt Five
 ![Jigsaw Screenshot!](/Recordings/ScreenCap.gif)
-</br><sub><sub>Jigsaw Screencap - See Recordings folder for a longer one</sub></sub>
+</br><sub>Jigsaw Screencap - [Longer version here](https://github.com/KasHunt/T5Doodle_Jigsaw/raw/master/Recordings/ScreenCap.mp4)</sub>
 
 ## Description
 A simple jigsaw application for Tilt Five.
