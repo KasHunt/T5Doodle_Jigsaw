@@ -476,7 +476,7 @@ namespace Code.Scripts
                 meshRenderer.material = hintMaterial;
                 meshRenderer.shadowCastingMode = ShadowCastingMode.Off;
                 meshRenderer.receiveShadows = false;
-                meshRenderer.material.color = Color.white.WithAlpha(hintAlpha);
+                meshRenderer.material.color = new Color(1, 1, 1, hintAlpha);
                 _hintObjectMeshRenderer = meshRenderer;
 
                 _hintObject.SetActive(false);
