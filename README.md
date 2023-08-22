@@ -1,4 +1,4 @@
-> This is not an official Tilt Five product. Read [the disclaimer](#Disclaimer) for details.
+> This is not an official Tilt Five product. Read [the disclaimer](#disclaimer) for details.
 # Jigsaw For Tilt Five
 ![Jigsaw Screenshot!](/Recordings/ScreenCap.gif)
 </br><sub>Jigsaw Screencap - [Longer version here](https://github.com/KasHunt/T5Doodle_Jigsaw/raw/master/Recordings/ScreenCap.mp4)</sub>
