@@ -1,0 +1,48 @@
+Jigsaw for TiltFive
+Copyright 2023 Kasper John Hunt
+
+This product includes the following licenced content
+====================================================
+Materials/arcColor.png
+- Origin: Original work by Kasper John Hunt
+- Licence: CC0
+
+Materials/wood.jpg
+- Origin: https://unsplash.com/photos/E7DsoC0mcpw 
+- Licence: Unsplash License
+
+Meshes/jigsawFlat.obj
+- Origin: Original work by Kasper John Hunt
+- Licence: CC0
+
+Meshes/jigsawIn.obj
+- Origin: Original work by Kasper John Hunt
+- Licence: CC0
+
+Meshes/jigsawOut.obj
+- Origin: Original work by Kasper John Hunt
+- Licence: CC0
+    
+Music/music1.mp3
+- Origin: https://pixabay.com/music/meditationspiritual-relaxing-music-part-1-141198/ 
+- Licence: Pixabay Content Licence
+
+Sound/impact.wav 
+- Origin: https://freesound.org/people/Joao_Janz/sounds/483996/
+- Licence: CC0
+            
+Sound/menuNav.wav
+- Origin: https://freesound.org/people/MattRuthSound/sounds/562097/
+- Licence: CC BY 4.0
+
+UI/puzzleIcon.png
+- Origin: https://github.com/iconoir-icons/iconoir/blob/03a415b18e8651b0ef085a02fce61fedc4cf5d4c/icons/puzzle.svg
+- Licence: MIT
+
+UI/saveIcon.png
+- Origin: https://github.com/iconoir-icons/iconoir/blob/03a415b18e8651b0ef085a02fce61fedc4cf5d4c/icons/save-action-floppy.svg
+- Licence: MIT
+
+UI/settingsIcon.png
+- Origin: https://github.com/iconoir-icons/iconoir/blob/03a415b18e8651b0ef085a02fce61fedc4cf5d4c/icons/settings.svg
+- Licence: MIT
