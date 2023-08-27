@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace Code.Scripts.Editor
+namespace Code.Scripts
 {
     [AttributeUsage(AttributeTargets.Field)]
     public class ConditionalShowAttribute : PropertyAttribute

@@ -17,8 +17,12 @@ namespace Code.Scripts
         [Min(0f)]
         public float maxAudioVelocity = 10f;
         
-        private Material _normalMaterial;
-        private Material _selectedMaterial;
+        public Piece piece;
+        public Material normalMaterial;
+        public Material selectedMaterial;
+        public float columnSize;
+        public float rowSize;
+        
         private MeshRenderer _meshRenderer;
         
         [CanBeNull] private Actuator _selectedBy;
@@ -33,12 +37,21 @@ namespace Code.Scripts
             var volume = Mathf.Clamp(impactVelocity / maxAudioVelocity, 0f, 1f);
             SoundManager.Instance.PlaySound(impactSound, volume);
         }
-        
-        public void Setup(Material material, Material selectedMaterial, Piece piece, float columnSize, float rowSize)
+
+        private void Awake()
         {
-            _normalMaterial = material;
-            _selectedMaterial = selectedMaterial;
-            
+            // Add teh RigidBody (So the pieces start fall...)
+            var combinedRigidbody = this.AddComponent<Rigidbody>();
+            combinedRigidbody.useGravity = true;
+
+            // Add the BoxCollider (So the pieces stop falling...)
+            var boxCollider = this.AddComponent<BoxCollider>();
+            boxCollider.size = new Vector3(0.55f, 0.075f, 0.55f);
+            boxCollider.center = new Vector3(0, 0, 0);
+        }
+
+        private void Start()
+        {
             CombineInstance[] combineInstances =
             {
                 GetNotchCombineInstance(piece.notches.top, Quaternion.identity),
@@ -66,16 +79,7 @@ namespace Code.Scripts
             var combinedMeshFilter = this.AddComponent<MeshFilter>();
             combinedMeshFilter.mesh = combinedMesh;
             _meshRenderer = this.AddComponent<MeshRenderer>();
-            _meshRenderer.material = material;
-
-            // Add teh RigidBody (So the pieces start fall...)
-            var combinedRigidbody = this.AddComponent<Rigidbody>();
-            combinedRigidbody.useGravity = true;
-
-            // Add the BoxCollider (So the pieces stop falling...)
-            var boxCollider = this.AddComponent<BoxCollider>();
-            boxCollider.size = new Vector3(0.55f, 0.075f, 0.55f);
-            boxCollider.center = new Vector3(0, 0, 0);
+            _meshRenderer.material = normalMaterial;
 
             // Modulate the scale of the piece slightly to avoid z-fighting on overlap
             transform.localScale = Vector3.Scale(transform.localScale, new Vector3(1, Random.Range(0.99f, 1.01f), 1));
@@ -89,7 +93,7 @@ namespace Code.Scripts
                 return;
             }
             
-            _meshRenderer.material = _selectedMaterial;
+            _meshRenderer.material = selectedMaterial;
             _selectedBy = actuator;
             
             // 'Flip' upside down objects on select
@@ -107,7 +111,7 @@ namespace Code.Scripts
                 return;
             }
             
-            _meshRenderer.material = _normalMaterial;
+            _meshRenderer.material = normalMaterial;
             _selectedBy = null;
         }
         

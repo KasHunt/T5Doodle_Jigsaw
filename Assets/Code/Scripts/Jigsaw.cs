@@ -169,12 +169,19 @@ namespace Code.Scripts
     
     public class Jigsaw : MonoBehaviour
     {
-        public GameObject pieceObject;
-        
         [Header("Materials")]
         public Material material;
         public Material selectedMaterial;
         public Material hintMaterial;
+        
+        [Header("Piece")]
+        public GameObject inNotchObject;
+        public GameObject flatNotchObject;
+        public GameObject outNotchObject;
+        public float apexHeight = 4f;
+        public AudioClip impactSound;
+        [Min(0f)]
+        public float maxAudioVelocity = 20f;
         
         [Header("Timings")]
         [Range(0.1f, 10f)]
@@ -223,6 +230,13 @@ namespace Code.Scripts
         private void Start()
         {
             StartCoroutine(SavePeriodically());
+            
+            var settings = SettingsManager.Load();
+            SoundManager.Instance.MusicVolume = settings.musicVolume;
+            SoundManager.Instance.EffectVolume = settings.effectVolume;
+            WandManager.Instance.arcLaunchVelocity = settings.wandArcVelocity;
+            
+            LoadJigsaw(settings.lastLoadedJigsaw);
         }
 
         public static Jigsaw Instance { get; private set; }
@@ -239,13 +253,6 @@ namespace Code.Scripts
             Instance = this;
 
             _hintObject = new GameObject("Hint");
-            
-            var settings = SettingsManager.Load();
-            SoundManager.Instance.MusicVolume = settings.musicVolume;
-            SoundManager.Instance.EffectVolume = settings.effectVolume;
-            WandManager.Instance.arcLaunchVelocity = settings.wandArcVelocity;
-            
-            LoadJigsaw(settings.lastLoadedJigsaw);
             
             // Persist across scenes
             DontDestroyOnLoad(gameObject);
@@ -294,40 +301,31 @@ namespace Code.Scripts
         
         private bool SavePieces()
         {
-            if (JigsawUI.Instance) JigsawUI.Instance.SetSaveIconVisible(true);
-            
-            try
+            // Don't save if we don't have a filename to save to...
+            var saveFilePath = _saveData.savePath; 
+            if (saveFilePath == "")
             {
-                // Don't save if we don't have a filename to save to...
-                var saveFilePath = _saveData.savePath; 
-                if (saveFilePath == "")
-                {
-                    return false;
-                }
+                return false;
+            }
+        
+            // Don't save if we've got no columns
+            if (_saveData.pieces.Count == 0)
+            {
+                return false;
+            }
             
-                // Don't save if we've got no columns
-                if (_saveData.pieces.Count == 0)
-                {
-                    return false;
-                }
-                
-                // Transfer position and rotation from the GameObject (which isn't serialized)
-                foreach (var piece in _saveData.pieces)
-                {
-                    piece.storedPosition = true;
-                    piece.position = new Piece.SerializableVector3(piece.PieceGameObject.transform.position);
-                    piece.rotation = new Piece.SerializableQuat(piece.PieceGameObject.transform.rotation);
-                }
+            // Transfer position and rotation from the GameObject (which isn't serialized)
+            foreach (var piece in _saveData.pieces)
+            {
+                piece.storedPosition = true;
+                piece.position = new Piece.SerializableVector3(piece.PieceGameObject.transform.position);
+                piece.rotation = new Piece.SerializableQuat(piece.PieceGameObject.transform.rotation);
+            }
 
-                var binaryFormatter = new BinaryFormatter();
-                var file = new FileStream(saveFilePath, FileMode.Create);
-                binaryFormatter.Serialize(file, _saveData);
-                file.Close();
-            }
-            finally
-            {
-                if (JigsawUI.Instance) JigsawUI.Instance.SetSaveIconVisible(false);
-            }
+            var binaryFormatter = new BinaryFormatter();
+            var file = new FileStream(saveFilePath, FileMode.Create);
+            binaryFormatter.Serialize(file, _saveData);
+            file.Close();
             return true;
         }
         
@@ -527,20 +525,33 @@ namespace Code.Scripts
             var colSize = (1f / _saveData.cols);
             var rowSize = (1f / _saveData.rows);
             
-            var pieceObjectInstance = Instantiate(pieceObject, position, rotation);
-            if (!pieceObjectInstance)
-            {
-                Log.Warn("Piece Object not specified");
-                return;
-            }
-            
-            var pieceObjectBehavior = pieceObjectInstance.GetComponent<JigsawPiece>();
+            var pieceObjectInstance = new GameObject("JigsawPiece (" + piece.column + "x" + piece.row + ")")
+                {
+                    transform =
+                    {
+                        rotation = rotation,
+                        position = position
+                    }
+                };
+            var pieceObjectBehavior = pieceObjectInstance.AddComponent<JigsawPiece>();
             if (!pieceObjectBehavior)
             {
                 Log.Warn("Piece Object missing Piece Object behaviour");
                 return;
             }
-            pieceObjectBehavior.Setup(material, selectedMaterial, piece, colSize, rowSize);
+
+            // Set piece properties
+            pieceObjectBehavior.inNotchObject = inNotchObject;
+            pieceObjectBehavior.flatNotchObject = flatNotchObject;
+            pieceObjectBehavior.outNotchObject = outNotchObject;
+            pieceObjectBehavior.apexHeight = apexHeight;
+            pieceObjectBehavior.impactSound = impactSound;
+            pieceObjectBehavior.maxAudioVelocity = maxAudioVelocity;
+            pieceObjectBehavior.piece = piece;
+            pieceObjectBehavior.normalMaterial = material;
+            pieceObjectBehavior.selectedMaterial = selectedMaterial;
+            pieceObjectBehavior.columnSize = colSize;
+            pieceObjectBehavior.rowSize = rowSize;
             
             // Parent the new piece to the Jigsaw
             pieceObjectInstance.transform.SetParent(transform);

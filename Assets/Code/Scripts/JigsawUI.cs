@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using SimpleFileBrowser;
 using TiltFive.Logging;
 using TMPro;
@@ -18,17 +17,16 @@ namespace Code.Scripts
 		}
 
 		[Header("Common")]
-		public GameObject modalBackground;
 		public AudioClip uiNavSound;
 		
 		[Header("HUD Icons")]
-		public GameObject saveIcon;
 		public GameObject settingMenu;
 		public GameObject jigsawMenu;
 
-		[Header("Settings Pages")]
+		[Header("Pages")]
 		public GameObject settingsPage;
 		public GameObject newJigsawPage;
+		public GameObject helpPage;
 
 		[Header("New Jigsaw Page UI Elements")]
 		public GameObject newRowsText;
@@ -168,19 +166,22 @@ namespace Code.Scripts
 			settingMenu.SetActive(false);
 		}
 
+		public void ToggleHelpScreen()
+		{
+			PlayUiNavSound();
+			helpPage.SetActive(!helpPage.activeSelf);
+		}
+		
 		public void ShowSettingsScreen()
 		{
 			PlayUiNavSound();
 			settingMenu.SetActive(false);
-			
-			modalBackground.SetActive(true);
 			settingsPage.SetActive(true);
 		}
 		
 		public void HideSettingsScreen()
 		{
 			PlayUiNavSound();
-			modalBackground.SetActive(false);
 			settingsPage.SetActive(false);
 		}
 		
@@ -188,15 +189,12 @@ namespace Code.Scripts
 		{
 			PlayUiNavSound();
 			settingMenu.SetActive(false);
-			
-			modalBackground.SetActive(true);
 			newJigsawPage.SetActive(true);
 		}
 		
 		public void HideNewJigsawScreen()
 		{
 			PlayUiNavSound();
-			modalBackground.SetActive(false);
 			newJigsawPage.SetActive(false);
 		}
 		
@@ -220,8 +218,8 @@ namespace Code.Scripts
 			FileBrowser.SetDefaultFilter(".jig");
 			FileBrowser.SetExcludedExtensions(".lnk", ".tmp", ".zip", ".rar", ".exe");
 
-			// Coroutine example
-			StartCoroutine(ShowLoadImageDialogCoroutine(LoadMode.Jigsaw));			
+			// State the coroutine based load dialog
+			ShowLoadImageDialog(LoadMode.Jigsaw);			
 		}
 		
 		public void LoadImage()
@@ -234,20 +232,49 @@ namespace Code.Scripts
 			FileBrowser.SetDefaultFilter(".jpg");
 			FileBrowser.SetExcludedExtensions(".lnk", ".tmp", ".zip", ".rar", ".exe");
 
-			// Coroutine example
-			StartCoroutine(ShowLoadImageDialogCoroutine(LoadMode.Image));			
-		}
-		
-		public void SetSaveIconVisible(bool visible)
-		{
-			saveIcon.SetActive(visible);
+			// State the coroutine based load dialog
+			ShowLoadImageDialog(LoadMode.Image);			
 		}
 
-		private IEnumerator ShowLoadImageDialogCoroutine(LoadMode mode)
+		private static void PopUI()
 		{
-			// Show the modal background
-			modalBackground.SetActive(true);
+			GameboardCanvas.Instance.PopCanvas();			
+		}
+		
+		private static void OnPickJigsawFile(string[] paths)
+		{
+			PopUI();
 			
+			// Find the Jigsaw
+			var jigsaw = Jigsaw.Instance;
+			if (!jigsaw)
+			{
+				Log.Warn("Failed to find Jigsaw Object");
+				return;
+			}
+
+			Log.Info("Loading image for Jigsaw : " + paths[0]);
+			jigsaw.LoadJigsaw(paths[0]);
+		}
+		
+		private void OnPickImageFile(string[] paths)
+		{
+			PopUI();
+			
+			// Find the Jigsaw
+			var jigsaw = Jigsaw.Instance;
+			if (!jigsaw)
+			{
+				Log.Warn("Failed to find Jigsaw Object");
+				return;
+			}
+
+			Log.Info("Loading image for Jigsaw : " + FileBrowser.Result[0]);
+			jigsaw.LoadImage(paths[0], _newJigsawRows, _newJigsawCols);
+		}
+		
+		private void ShowLoadImageDialog(LoadMode mode)
+		{
 			var title = mode switch
 			{
 				LoadMode.Jigsaw => "Select Jigsaw",
@@ -261,41 +288,26 @@ namespace Code.Scripts
 				LoadMode.Image => Environment.GetFolderPath(Environment.SpecialFolder.MyPictures),
 				_ => throw new ArgumentOutOfRangeException(nameof(mode), mode, null)
 			};
+            
+			var fileBrowserGameObject = FindObjectOfType<FileBrowser>(true);
+			var gameboardCanvas = fileBrowserGameObject.gameObject.GetComponent<Canvas>();
+			GameboardCanvas.Instance.PushCanvas(gameboardCanvas);
+			fileBrowserGameObject.gameObject.GetComponent<CanvasScaler>().referenceResolution = new Vector2(300, 300);
 			
-			yield return FileBrowser.WaitForLoadDialog(FileBrowser.PickMode.FilesAndFolders, false, initialPath, null,
-				title, "Load");
-
-			// Clear the modal background
-			modalBackground.SetActive(false);
-			
-			if (!FileBrowser.Success)
-			{
-				yield break;
-			}
-
-			// Find the Jigsaw
-			var jigsaw = Jigsaw.Instance;
-			if (!jigsaw)
-			{
-				Log.Warn("Failed to find Jigsaw Object");
-				yield break;
-			}
-
-			switch (mode)
-			{
-				case LoadMode.Jigsaw:
-					Log.Info("Loading image for Jigsaw : " + FileBrowser.Result[0]);
-					jigsaw.LoadJigsaw(FileBrowser.Result[0]);
-					break;
-				
-				case LoadMode.Image:
-					Log.Info("Loading image for Jigsaw : " + FileBrowser.Result[0]);
-					jigsaw.LoadImage(FileBrowser.Result[0], _newJigsawRows, _newJigsawCols);
-					break;
-				
-				default:
-					throw new ArgumentOutOfRangeException(nameof(mode), mode, null);
-			}
+			FileBrowser.ShowLoadDialog(
+				mode switch
+				{
+					LoadMode.Jigsaw => OnPickJigsawFile,
+					LoadMode.Image => OnPickImageFile,
+					_ => throw new ArgumentOutOfRangeException(nameof(mode), mode, null)
+				},
+				PopUI,
+				FileBrowser.PickMode.Files,
+				false,
+				initialPath,
+				null,
+				title,
+				"Load");
 		}
 	}
 }
