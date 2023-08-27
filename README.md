@@ -30,6 +30,8 @@ The jigsaw icon brings up the jigsaw menu:
 - Randomize - Launch the pieces in random directions
 - Toggle Hint - Toggle hint visibility
 
+The question mark icon brings up the help screen.
+
 ### Wand controls
 | Control          | Action                                                                                          |
 |------------------|-------------------------------------------------------------------------------------------------|
@@ -55,7 +57,8 @@ It'll also snap to a side of the other piece. Note that it doesn't mean it's the
 - Remote multiplayer
 
 ## Development Time
-- Approximately 14 hours (Including a rabbit hole of ballistics calculations)
+- For v0.1.0 Approximately 14 hours (Including a rabbit hole of ballistics calculations)
+- For v0.2.0 Approximately 6 hours (Mostly on reusable Gameboard and wand components)
 
 ## Tooling
 - Unity 2021.3 **: Game Engine**

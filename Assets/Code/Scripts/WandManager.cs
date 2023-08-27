@@ -27,10 +27,10 @@ namespace Code.Scripts
         [Header("Actuators")]
         public bool enableLeftWand;
         [ConditionalShow("enableLeftWand")] public GameObject leftActuatorObject;
-        [ConditionalShow("enableLeftWand")] [Layer] public bool leftActuatorVisibleToAll;
+        [ConditionalShow("enableLeftWand")] public bool leftActuatorVisibleToAll;
         public bool enableRightWand;
         [ConditionalShow("enableRightWand")] public GameObject rightActuatorObject;
-        [ConditionalShow("enableRightWand")] [Layer] public bool rightActuatorVisibleToAll;
+        [ConditionalShow("enableRightWand")] public bool rightActuatorVisibleToAll;
         
         [Header("Canvas")]
         public GameObject canvasCursorObject;
@@ -142,7 +142,7 @@ namespace Code.Scripts
         
         private Stack<GameObject> _canvasOtherCursorObjects = new();
         private LineRenderer _lineRenderer;
-        private List<Vector3> _points;
+        private List<Vector3> _points = new();
         private bool _canvasCursorActive;
         private int? _canvasArcLimit;
         private Vector3? _canvasArcImpact;

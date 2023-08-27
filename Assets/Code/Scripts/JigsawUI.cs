@@ -97,6 +97,9 @@ namespace Code.Scripts
 			_soundEffectVolumeSlider.value = SoundManager.Instance.EffectVolume;
 			_musicVolumeSlider.value = SoundManager.Instance.MusicVolume;
 			_wandArcSlider.value = WandManager.Instance.arcLaunchVelocity;
+			
+			// Show the help screen on startup
+			ToggleHelpScreen();
 		}
 
 		private void PlayUiNavSound()

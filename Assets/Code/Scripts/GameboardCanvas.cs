@@ -73,8 +73,11 @@ namespace Code.Scripts
         private readonly Dictionary<PlayerIndex, GameObject> _surfaces = new();
         private readonly Dictionary<CardinalDirection, Plane> _uiPlanes = new();
 
-        [Header("Initial Sate")]
+        [Header("Initial State")]
         public Canvas initialCanvas;
+        
+        [Header("Materials")]
+        public Material canvasMaterial;
         
         [Header("Layers")]
         [Layer] public int playerOneLayer;
@@ -87,7 +90,6 @@ namespace Code.Scripts
         public float reClickTimeLimit = 0.5f;
         [Range(0.2f, 10f)]
         public float dragThresholdMultiplier = 5.0f;
-        public Vector3 canvasCursorOffset = new(0, 0.01f, 0);
         
         private const int TextureSize = 1024;
         
@@ -109,22 +111,7 @@ namespace Code.Scripts
             Pointers.Remove(pointer);
         }
 
-        private static Material CreateMaterial(Texture texture)
-        {
-            var transparentMaterial = new Material(Shader.Find($"Standard"));
-            transparentMaterial.SetFloat(Mode, 3); // Set to Transparent mode
-            transparentMaterial.SetInt(SrcBlend, (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-            transparentMaterial.SetInt(DstBlend, (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-            transparentMaterial.SetInt(ZWrite, 0);
-            transparentMaterial.DisableKeyword("_ALPHATEST_ON");
-            transparentMaterial.EnableKeyword("_ALPHABLEND_ON");
-            transparentMaterial.DisableKeyword("_ALPHAPREMULTIPLY_ON");
-            transparentMaterial.renderQueue = 3000; // Transparent queue
-            transparentMaterial.mainTexture = texture;
-            return transparentMaterial;
-        }
-
-        private static GameObject CreateSurface(PlayerIndex player, Texture texture)
+        private GameObject CreateSurface(PlayerIndex player, Texture texture)
         {
             // Create the display surface
             var displaySurface = new GameObject("Gameboard UI Canvas (Player " + player + ")")
@@ -141,7 +128,8 @@ namespace Code.Scripts
             
             // Set the basic material properties
             var meshRenderer = displaySurface.AddComponent<MeshRenderer>();
-            meshRenderer.material = CreateMaterial(texture);
+            meshRenderer.material = canvasMaterial;
+            meshRenderer.material.mainTexture = texture;
 
             return displaySurface;
         }
@@ -697,7 +685,7 @@ namespace Code.Scripts
                         Origin = pointer,
                         PlayerIndex = playerIndex,
                         ControllerIndex = pointerEventData.ControllerIndex,
-                        Position = canvasPosition + canvasCursorOffset,
+                        Position = canvasPosition,
                         Data = data
                     });
                 }
